@@ -11,6 +11,9 @@ filter out required data(if left empty a raw json dictionary is returned). Examp
 
 CMClient.get_latest_prices(filterBy={"pair":"BTCEUR"})
 
+FOR THE DEMO ACCOUNT USE
+
+BASE="https://api.coinmetro.com/open"
 '''
 
 BASE="https://api.coinmetro.com"
@@ -45,7 +48,12 @@ class CMClient:
 
         response = requests.post(f"{BASE}/payments",headers=headers, data=data)
         return self.json_response(response)
+        if not response['success']:
+            raise Exception(response['reason'])
+            print(response['reason'])
 
+    """
+    # Not recommended for use except for arbitrage, be cautious #
     def withdraw(self, amount:str, currency:str, wallet:str):
         '''
         (From the docs)
@@ -61,6 +69,12 @@ class CMClient:
         response = requests.post(f"{BASE}/withdraw",headers=headers, data=data)
 
         return self.json_response(response)
+        if not response['success']:
+            raise Exception(response['reason'])
+            print(response['reason'])
+     """
+    # Not recommended for use except for arbitrage, be cautious #
+        
 
     def ensure_wallet(self, currency:str) -> Any:
         return self.common_json_methods(f"/users/wallets/{currency}")
