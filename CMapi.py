@@ -209,23 +209,10 @@ class CMClient:
         headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
         payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&buyingQty={buyingQty}'
 
-        if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
-            payload+= f"&timeInForce="{str(kwgs["timeInForce"])}
-        if kwgs.get("expirationTime"):
-            payload+= f"&expirationTime="{str(kwgs["expirationTime"])}
-        else:
-            raise Exception("Time in Force needs expirationTime")
-        if kwgs.get("stopPrice"):
-            payload+= f"&stopPrice="{str(kwgs["stopPrice"])}
-        if kwgs.get("margin"):
-            payload+= f"&margin="{str(kwgs["margin"])}
-        if kwgs.get("fillStyle"):
-            payload+= f"&fillStyle="{str(kwgs["fillStyle"])}
-
         response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
         if str(201) not in response:
-            raise Exception(response['reason'])
-            print(response['reason'])
+            raise Exception(response['message'])
+            print(response['message'])
 
         return self.json_response(response)
 
@@ -241,23 +228,10 @@ class CMClient:
         headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
         payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&sellingQty={sellingQty}'
 
-        if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
-            payload+= f"&timeInForce="{str(kwgs["timeInForce"])}
-        if kwgs.get("expirationTime"):
-            payload+= f"&expirationTime="{str(kwgs["expirationTime"])}
-        else:
-            raise Exception("Time in Force needs expirationTime")
-        if kwgs.get("stopPrice"):
-            payload+= f"&stopPrice="{str(kwgs["stopPrice"])}
-        if kwgs.get("margin"):
-            payload+= f"&margin="{str(kwgs["margin"])}
-        if kwgs.get("fillStyle"):
-            payload+= f"&fillStyle="{str(kwgs["fillStyle"])}
-
         response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
         if str(201) not in response:
-            raise Exception(response['reason'])
-            print(response['reason'])
+            raise Exception(response['message'])
+            print(response['message'])
 
         return self.json_response(response)
 
@@ -268,22 +242,22 @@ class CMClient:
         payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&buyingQty={buyingQty}&sellingQty={sellingQty}'
 
         if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
-            payload+= f"&timeInForce="{str(kwgs["timeInForce"])}
+            payload+= f"&timeInForce={str(kwgs['timeInForce'])}"
         if kwgs.get("expirationTime"):
-            payload+= f"&expirationTime="{str(kwgs["expirationTime"])}
+            payload+= f"&expirationTime={str(kwgs['expirationTime'])}"
         else:
             raise Exception("Time in Force needs expirationTime")
         if kwgs.get("stopPrice"):
-            payload+= f"&stopPrice="{str(kwgs["stopPrice"])}
+            payload+= f"&stopPrice={str(kwgs['stopPrice'])}"
         if kwgs.get("margin"): #takes a boolean as true or false
-            payload+= f"&margin="{str(kwgs["margin"])}
+            payload+= f"&margin={str(kwgs['margin'])}"
         if kwgs.get("fillStyle"):
-            payload+= f"&fillStyle="{str(kwgs["fillStyle"])}
+            payload+= f"&fillStyle={str(kwgs['fillStyle'])}"
 
         response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
         if str(20) not in response:
-            raise Exception(response['reason'])
-            print(response['reason'])
+            raise Exception(response['message'])
+            print(response['message'])
 
         return self.json_response(response)
 
