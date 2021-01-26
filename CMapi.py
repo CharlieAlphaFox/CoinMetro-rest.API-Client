@@ -197,8 +197,8 @@ class CMClient:
         resp = self._common_response(self, response=response, sortby="candleHistory", filterBy=filterBy)
         return resp
 
-    def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
-        #Market oder
+   def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
+        #Market order
         '''
         (From the docs)
         One (and only one) ofbuyingQtyor sellingQty is required for market orders, both for limit orders.
@@ -206,25 +206,28 @@ class CMClient:
         Use the fillStyle property to change this behaviour.
         '''
 
-        headers = {"Content-Type":"application/x-www-form-urlencoded","Authorization":self.bearerToken,"X-OTP":""}
-        data = {"orderType":orderType, "buyingCurrency": buyingCurrency, "sellingCurrency": sellingCurrency, "buyingQty": buyingQty} # 4 market buys fill or kill
+        headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&buyingQty={buyingQty}'
 
         if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
-            data.update({"timeInForce":kwgs["timeInForce"]})
-            data.update({"expirationTime":kwgs["expirationTime"]})
+            payload+= f"&timeInForce="{str(kwgs["timeInForce"])}
+        if kwgs.get("expirationTime"):
+            payload+= f"&expirationTime="{str(kwgs["expirationTime"])}
+        else:
+            raise Exception("Time in Force needs expirationTime")
         if kwgs.get("stopPrice"):
-            data.update({"stopPrice":kwgs["stopPrice"]})
+            payload+= f"&stopPrice="{str(kwgs["stopPrice"])}
         if kwgs.get("margin"):
-            data.update({"margin":kwgs["margin"]})
+            payload+= f"&margin="{str(kwgs["margin"])}
         if kwgs.get("fillStyle"):
-            data.update({"fillStyle":kwgs["fillStyle"]})
+            payload+= f"&fillStyle="{str(kwgs["fillStyle"])}
 
-        response = requests.post(f"{BASE}/exchange/orders/create", headers=headers, data=data)
-        return self.json_response(response)
-
-        if not response['success']:
+        response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
+        if str(201) not in response:
             raise Exception(response['reason'])
             print(response['reason'])
+
+        return self.json_response(response)
 
     def place_sell_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, sellingQty:str, **kwgs) -> Any:
         # Market order
@@ -235,29 +238,54 @@ class CMClient:
         Use the fillStyle property to change this behaviour.
         '''
 
-        headers = {"Content-Type":"application/x-www-form-urlencoded","Authorization":self.bearerToken,"X-OTP":""}
-        data = {"amount":amount, "currency":currency, "wallet":wallet}
-        data = {
-                "orderType":type, "buyingCurrency": usdt, "sellingCurrency": altc,
-                "sellingQty": size, "timeInForce": 'FOK'} # 4 market sells fill or kill
+        headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&sellingQty={sellingQty}'
 
-        if kwgs.get("timeInForce") == 3: # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
-            data.update({"timeInForce":kwgs["timeInForce"]})
-            data.update({"expirationTime":kwgs["expirationTime"]})
+        if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
+            payload+= f"&timeInForce="{str(kwgs["timeInForce"])}
+        if kwgs.get("expirationTime"):
+            payload+= f"&expirationTime="{str(kwgs["expirationTime"])}
+        else:
+            raise Exception("Time in Force needs expirationTime")
         if kwgs.get("stopPrice"):
-            data.update({"stopPrice":kwgs["stopPrice"]})
+            payload+= f"&stopPrice="{str(kwgs["stopPrice"])}
         if kwgs.get("margin"):
-            data.update({"margin":kwgs["margin"]})
+            payload+= f"&margin="{str(kwgs["margin"])}
         if kwgs.get("fillStyle"):
-            data.update({"fillStyle":kwgs["fillStyle"]})
+            payload+= f"&fillStyle="{str(kwgs["fillStyle"])}
 
-        response = requests.post(f"{BASE}/exchange/orders/create",headers=headers, data=data)
-        return self.json_response(response)
-        print(response)
-
-        if not response['success']:
+        response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
+        if str(201) not in response:
             raise Exception(response['reason'])
             print(response['reason'])
+
+        return self.json_response(response)
+
+    def place_limit_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
+        #limit orders include margin orders, Stop Limit Orders,
+
+        headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&buyingQty={buyingQty}&sellingQty={sellingQty}'
+
+        if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
+            payload+= f"&timeInForce="{str(kwgs["timeInForce"])}
+        if kwgs.get("expirationTime"):
+            payload+= f"&expirationTime="{str(kwgs["expirationTime"])}
+        else:
+            raise Exception("Time in Force needs expirationTime")
+        if kwgs.get("stopPrice"):
+            payload+= f"&stopPrice="{str(kwgs["stopPrice"])}
+        if kwgs.get("margin"): #takes a boolean as true or false
+            payload+= f"&margin="{str(kwgs["margin"])}
+        if kwgs.get("fillStyle"):
+            payload+= f"&fillStyle="{str(kwgs["fillStyle"])}
+
+        response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
+        if str(20) not in response:
+            raise Exception(response['reason'])
+            print(response['reason'])
+
+        return self.json_response(response)
 
     '''methods end here'''
 
