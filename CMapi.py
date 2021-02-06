@@ -197,7 +197,7 @@ class CMClient:
         resp = self._common_response(self, response=response, sortby="candleHistory", filterBy=filterBy)
         return resp
 
-   def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
+  def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
         #Market order
         '''
         (From the docs)
@@ -210,9 +210,6 @@ class CMClient:
         payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&buyingQty={buyingQty}'
 
         response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
-        if str(201) not in response:
-            raise Exception(response['message'])
-            print(response['message'])
 
         return self.json_response(response)
 
@@ -229,9 +226,6 @@ class CMClient:
         payload = f'orderType={orderType}&buyingCurrency={buyingCurrency}&sellingCurrency={sellingCurrency}&sellingQty={sellingQty}'
 
         response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
-        if str(201) not in response:
-            raise Exception(response['message'])
-            print(response['message'])
 
         return self.json_response(response)
 
@@ -255,9 +249,6 @@ class CMClient:
             payload+= f"&fillStyle={str(kwgs['fillStyle'])}"
 
         response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
-        if str(20) not in response:
-            raise Exception(response['message'])
-            print(response['message'])
 
         return self.json_response(response)
 
