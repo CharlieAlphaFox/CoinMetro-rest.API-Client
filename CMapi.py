@@ -52,8 +52,9 @@ class CMClient:
             raise Exception(response['reason'])
             print(response['reason'])
 
-    """
-    # Not recommended for use except for arbitrage, be cautious #
+   
+    # Not recommended for use except for arbitrage, be cautious of your keys #
+    
     def withdraw(self, amount:str, currency:str, wallet:str):
         '''
         (From the docs)
@@ -72,9 +73,8 @@ class CMClient:
         if not response['success']:
             raise Exception(response['reason'])
             print(response['reason'])
-     """
-    # Not recommended for use except for arbitrage, be cautious #
-        
+   
+    # Not recommended for use except for arbitrage, be cautious of your keys #
 
     def ensure_wallet(self, currency:str) -> Any:
         return self.common_json_methods(f"/users/wallets/{currency}")
