@@ -11,9 +11,6 @@ filter out required data(if left empty a raw json dictionary is returned). Examp
 
 CMClient.get_latest_prices(filterBy={"pair":"BTCEUR"})
 
-FOR THE DEMO ACCOUNT USE
-
-BASE="https://api.coinmetro.com/open"
 '''
 
 BASE="https://api.coinmetro.com"
@@ -29,7 +26,7 @@ class CMClient:
         apiSession = requests.post(url=f"{BASE}/jwt",headers=headers,data=data)
         sc = apiSession.status_code
 
-        if sc==200:
+        if 199 < sc <=299:
             self.bearerToken = "Bearer "+apiSession.json()["token"]
             self.userId = apiSession.json()["userId"]
 
@@ -37,24 +34,16 @@ class CMClient:
             print(apiSession.text)
             raise Exception("The client failed to initialize. Refer to the above for details.")
 
-
-
     '''methods start here'''
     def initiate_payment(self,amount:str, currency:str, payment_method:str="everypay", **kwgs):
         headers = {"Content-Type":"application/x-www-form-urlencoded", "Authorization":self.bearerToken}
         data = {"amount":amount, "currency":currency, "paymentMethod":payment_method}
         if kwgs.get("cardId"):
-            data.update({"cardId":kwgs["cardId"]})
+            data.update({"cardId":kwgs['cardId']})
 
         response = requests.post(f"{BASE}/payments",headers=headers, data=data)
         return self.json_response(response)
-        if not response['success']:
-            raise Exception(response['reason'])
-            print(response['reason'])
 
-   
-    # Not recommended for use except for arbitrage, be cautious of your keys #
-    
     def withdraw(self, amount:str, currency:str, wallet:str):
         '''
         (From the docs)
@@ -70,21 +59,16 @@ class CMClient:
         response = requests.post(f"{BASE}/withdraw",headers=headers, data=data)
 
         return self.json_response(response)
-        if not response['success']:
-            raise Exception(response['reason'])
-            print(response['reason'])
-   
-    # Not recommended for use except for arbitrage, be cautious of your keys #
 
     def ensure_wallet(self, currency:str) -> Any:
         return self.common_json_methods(f"/users/wallets/{currency}")
 
     def delete_saved_address(self, addressId:str):
         response = requests.delete(f"{BASE}/withdraw/saved-addresses/{addressId}", headers={"Authorization":self.bearerToken})
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             print("successfully deleted message")
         else:
-            self._request_not_successful()
+            self._request_not_successful(response)
 
     def get_margin_info(self) -> Any:
         return self.common_json_methods("/exchange/margin")
@@ -130,7 +114,7 @@ class CMClient:
     @classmethod
     def get_book_updates(self, pair:str, From:int=0,filterBy:dict =None) -> Any:
         response = requests.get(f"{BASE}/exchange/bookUpdates/{pair}/{From}")
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             if filterBy is not None:
                 res = self._search(self, response.json(), filterBy)
                 if res[0]:
@@ -138,12 +122,12 @@ class CMClient:
                 return [{}]
             return response.json()
         else:
-            self._request_not_successful()
+            self._request_not_successful(response)
 
     @classmethod
     def get_latest_trades(self, pair:str, From:int) -> Any:
         response  = requests.get(f"{BASE}/exchange/ticks/{pair}/{From}")
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             return response.json()
         else:
             self._request_not_successful(self)
@@ -159,7 +143,7 @@ class CMClient:
     @classmethod
     def get_trading_markets(self, filterBy:dict =None) -> Any:
         response = requests.get(f"{BASE}/markets")
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             if filterBy is not None:
                 res = self._search(self,response.json(),filterBy)
                 if res[0]:
@@ -173,7 +157,7 @@ class CMClient:
     @classmethod
     def get_trading_assets(self, filterBy:dict = None) -> Any:
         response = requests.get(f"{BASE}/assets")
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             if filterBy is not None:
                 res = self._search(self, response.json(), filterBy)
                 if res[0]:
@@ -181,7 +165,7 @@ class CMClient:
                 return [{}]
             return response.json()
         else:
-            self._request_not_successful()
+            self._request_not_successful(response)
 
     @classmethod
     def get_historical_prices(self, pair:str, timeframe:int, filterBy:dict = None, **kwargs) -> Any:
@@ -197,7 +181,7 @@ class CMClient:
         resp = self._common_response(self, response=response, sortby="candleHistory", filterBy=filterBy)
         return resp
 
-  def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
+    def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
         #Market order
         '''
         (From the docs)
@@ -255,8 +239,8 @@ class CMClient:
     '''methods end here'''
 
     ''' utility methods start here'''
-    def _request_not_successful(self):
-        raise Exception("The request was not successful")
+    def _request_not_successful(self, response):
+        raise Exception(response)
 
     def _search(self, dictionary:list, filterdict:dict) -> tuple:
         results = []
@@ -276,7 +260,7 @@ class CMClient:
 
 
     def _common_response(self, response,sortby,filterBy=None):
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             if filterBy is not None:
                 res = self._search(self,response.json()[sortby],filterBy) #filters json by pair and returns the pertaining dictionary
                 if res[0]:
@@ -290,11 +274,11 @@ class CMClient:
             self._request_not_successful(self)
 
     def json_response(self, response):
-        if response.status_code==200:
+        if 199 < response.status_code <= 299:
             return response.json()
         else:
             print(response.status_code ,response.json())
-            self._request_not_successful()
+            self._request_not_successful(response)
 
     def common_json_methods(self,endpoint:str):
         headers={"Authorization":self.bearerToken}
@@ -302,3 +286,4 @@ class CMClient:
         return self.json_response(response)
 
     '''utility methods end here'''
+
