@@ -130,7 +130,7 @@ class CMClient:
         if 199 < response.status_code <= 299:
             return response.json()
         else:
-            self._request_not_successful(self)
+            self._request_not_successful(response)
 
     @classmethod
     def get_latest_prices(self, filterBy:dict=None) -> Any:
@@ -271,7 +271,7 @@ class CMClient:
 
         else:
             print(response.status_code, response.json())
-            self._request_not_successful(self)
+            self._request_not_successful(response)
 
     def json_response(self, response):
         if 199 < response.status_code <= 299:
@@ -286,4 +286,3 @@ class CMClient:
         return self.json_response(response)
 
     '''utility methods end here'''
-
