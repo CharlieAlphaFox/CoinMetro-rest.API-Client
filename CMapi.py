@@ -152,7 +152,7 @@ class CMClient:
 
             return response.json() #returns raw json as dict if pair not specified
         else:
-             self._request_not_successful(self)
+             self._request_not_successful(response)
 
     @classmethod
     def get_trading_assets(self, filterBy:dict = None) -> Any:
@@ -240,6 +240,8 @@ class CMClient:
 
     ''' utility methods start here'''
     def _request_not_successful(self, response):
+        if not response:
+            response = 'No response from API'
         raise Exception(response)
 
     def _search(self, dictionary:list, filterdict:dict) -> tuple:
