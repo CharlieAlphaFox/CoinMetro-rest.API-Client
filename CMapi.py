@@ -1,4 +1,5 @@
 import requests
+import datetime
 from typing import Any
 
 ''' All methods with the classmethod decorator are bound to the
@@ -176,13 +177,16 @@ class CMClient:
 
         if kwargs.get("To"):
             TO=kwargs["To"]
-
         response = requests.get(f"{BASE}/open/exchange/candles/{pair}/{timeframe}/{FROM}/{TO}")
+        if not response or response is None:
+            utc = datetime.datetime.utcnow()
+            response = f'No response from API, {utc}'
+            raise Exception(response)
         resp = self._common_response(self, response=response, sortby="candleHistory", filterBy=filterBy)
         return resp
 
     def place_buy_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
-        #Market order
+        # Market order
         '''
         (From the docs)
         One (and only one) ofbuyingQtyor sellingQty is required for market orders, both for limit orders.
@@ -240,8 +244,9 @@ class CMClient:
 
     ''' utility methods start here'''
     def _request_not_successful(self, response):
-        if not response:
-            response = 'No response from API'
+        if not response or response is None:
+            utc = datetime.datetime.utcnow()
+            response = f'No response from API, {utc}'
         raise Exception(response)
 
     def _search(self, dictionary:list, filterdict:dict) -> tuple:
@@ -269,7 +274,7 @@ class CMClient:
                     return res[1]
                 return [{}]
 
-            return response.json()   #returns raw json as dict if pair not specified
+            return response.json()  # returns raw json as dict if pair not specified
 
         else:
             print(response.status_code, response.json())
@@ -284,7 +289,7 @@ class CMClient:
 
     def common_json_methods(self,endpoint:str):
         headers={"Authorization":self.bearerToken}
-        response = requests.get(f"{BASE}{endpoint}",headers=headers)
+        response = requests.get(f"{BASE}{endpoint}", headers=headers)
         return self.json_response(response)
 
     '''utility methods end here'''
