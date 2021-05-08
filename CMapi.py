@@ -217,7 +217,7 @@ class CMClient:
 
         return self.json_response(response)
 
-    def place_limit_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, **kwgs) -> Any:
+    def place_limit_order(self, orderType:str, buyingCurrency:str, sellingCurrency:str, buyingQty:str, sellingQty:str, **kwgs) -> Any:
         #limit orders include margin orders, Stop Limit Orders,
 
         headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
