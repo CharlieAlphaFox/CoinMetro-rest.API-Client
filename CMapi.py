@@ -227,8 +227,6 @@ class CMClient:
             payload+= f"&timeInForce={str(kwgs['timeInForce'])}"
         if kwgs.get("expirationTime"):
             payload+= f"&expirationTime={str(kwgs['expirationTime'])}"
-        else:
-            raise Exception("Time in Force needs expirationTime")
         if kwgs.get("stopPrice"):
             payload+= f"&stopPrice={str(kwgs['stopPrice'])}"
         if kwgs.get("margin"): #takes a boolean as true or false
