@@ -225,7 +225,7 @@ class CMClient:
 
         if kwgs.get("timeInForce"): # 'GTC': 1, 'IOC': 2, 'GTD': 3, 'FOK': 4
             payload+= f"&timeInForce={str(kwgs['timeInForce'])}"
-        if kwgs.get("expirationTime"):
+        if kwgs.get("expirationTime"): # Timestamp in millisecond, for GTD orders only
             payload+= f"&expirationTime={str(kwgs['expirationTime'])}"
         if kwgs.get("stopPrice"):
             payload+= f"&stopPrice={str(kwgs['stopPrice'])}"
@@ -233,9 +233,19 @@ class CMClient:
             payload+= f"&margin={str(kwgs['margin'])}"
         if kwgs.get("fillStyle"):
             payload+= f"&fillStyle={str(kwgs['fillStyle'])}"
+        response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload, timeout=3)
 
-        response = requests.request("POST", f'{BASE}/exchange/orders/create', headers=headers, data = payload)
+        return self.json_response(response)
 
+    def get_open_orders(self):
+        headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
+        response = requests.request("GET", f'{BASE}/exchange/orders/active', headers=headers, timeout=3)
+        return self.json_response(response)
+
+    def cancel_order(self, orderID:str) -> Any:
+        headers={"Authorization":self.bearerToken, 'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = f'{orderID}'
+        response = requests.request("PUT", f'{BASE}/exchange/orders/cancel/', headers=headers, data = payload, timeout=3)
         return self.json_response(response)
 
     '''methods end here'''
