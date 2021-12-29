@@ -2,6 +2,8 @@ import requests
 import datetime
 from typing import Any
 
+# Please use this link to support me: https://coinmetro.com/?ref=charlie01
+
 ''' All methods with the classmethod decorator are bound to the
 class and can be run without creating an object(hence no auth). Example-
 
