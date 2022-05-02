@@ -5,6 +5,7 @@ CoinMetro is a low fee fiat on/off ramp with lots of trading, market making and 
 Use https://coinmetro.com/?ref=charlie01 to open your account if you havent already.
 
 Sample usage:
+g-recaptcha-response = 1982efn1928ehasd
 
 client = CMapi.CMClient(email=YOUR_EMAIL, passwd=YOUR_PASSWD, hashkey=g-recaptcha-response)
 
